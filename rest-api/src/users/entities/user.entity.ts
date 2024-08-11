@@ -1,13 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
+  @Column({ unique: true })
   username!: string;
 
   @Column()
   password!: string;
+
+  @CreateDateColumn({ type: 'datetime' })
+  regDate!: Date;
 }

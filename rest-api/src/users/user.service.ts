@@ -27,4 +27,8 @@ export class UsersService {
   deleteUser(id: number) {
     return this.usersRepository.deleteUser(id);
   }
+
+  findUserByUsername(username: string): Promise<User | null> {
+    return this.usersRepository.findUserByUsername(username);
+  }
 }

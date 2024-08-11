@@ -7,8 +7,12 @@ import { User } from "./entities/user.entity";
 export class UsersRepository {
   private repository: Repository<User>;
 
-  constructor() {
-    this.repository = AppDataSource.getRepository(User);
+  constructor(repository?: Repository<User>) {
+    if (repository) {
+      this.repository = repository;
+    } else {
+      this.repository = AppDataSource.getRepository(User);
+    }
   }
 
   createUser(user: User) {
@@ -29,5 +33,9 @@ export class UsersRepository {
 
   deleteUser(id: number) {
     return this.repository.delete(id);
+  }
+
+  findUserByUsername(username: string) {
+    return this.repository.findOneBy({ username });
   }
 }
