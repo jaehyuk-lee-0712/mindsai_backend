@@ -7,35 +7,33 @@ import { User } from "./entities/user.entity";
 export class UsersRepository {
   private repository: Repository<User>;
 
-  constructor(repository?: Repository<User>) {
-    if (repository) {
-      this.repository = repository;
-    } else {
-      this.repository = AppDataSource.getRepository(User);
-    }
+  constructor() {
+    this.repository = AppDataSource.getRepository(User);
   }
 
-  createUser(user: User) {
+  async createUser(user: User): Promise<User> {
     return this.repository.save(user);
   }
 
-  findUserById(id: number) {
-    return this.repository.findOneBy({ id });
+  async findUserById(id: number): Promise<User | null> {
+    return this.repository.findOne({ where: { id } });
   }
 
-  findAllUsers() {
+  async findAllUsers(): Promise<User[]> {
     return this.repository.find();
   }
 
-  updateUser(id: number, user: Partial<User>) {
-    return this.repository.update(id, user);
+  async updateUser(id: number, user: Partial<User>): Promise<User | null> {
+    await this.repository.update(id, user);
+    return this.findUserById(id);
   }
 
-  deleteUser(id: number) {
-    return this.repository.delete(id);
+  async deleteUser(id: number): Promise<boolean> {
+    const result = await this.repository.delete(id);
+    return result.affected !== 0;
   }
 
-  findUserByUsername(username: string) {
-    return this.repository.findOneBy({ username });
+  async findUserByUsername(username: string): Promise<User | null> {
+    return this.repository.findOne({ where: { username } });
   }
 }

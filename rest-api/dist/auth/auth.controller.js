@@ -31,7 +31,7 @@ let AuthController = class AuthController {
     }
     login(body, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { username, password } = body; // body에서 바로 username과 password를 구조 분해 할당합니다.
+            const { username, password } = body;
             if (!username || !password) {
                 return res.status(400).send('Username and password are required');
             }

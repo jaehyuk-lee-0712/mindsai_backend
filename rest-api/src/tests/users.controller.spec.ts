@@ -27,11 +27,8 @@ let token: string;
 beforeAll(async () => {
     await AppTestDataSource.initialize();
 
-    const userRepository = AppTestDataSource.getRepository(User);
+    container.rebind<DataSource>(DataSource).toConstantValue(AppTestDataSource);
     
-    const customUserRepository = new UsersRepository(userRepository);
-    container.rebind<UsersRepository>(UsersRepository).toConstantValue(customUserRepository);
-
     const server = new InversifyExpressServer(container);
     server.setConfig((app) => {
         app.use(express.json());
@@ -81,8 +78,7 @@ describe('Users API', () => {
 
     it('should update a user', async () => {
         const userService = container.get<UsersService>(UsersService);
-        let user = await userService.findUserByUsername('newuser');
-
+        const user = await userService.findUserByUsername('newuser');
         const res = await request(app)
             .put(`/users/${user!.id}`)
             .set('Authorization', `Bearer ${token}`)
@@ -90,21 +86,13 @@ describe('Users API', () => {
 
         expect(res.statusCode).toEqual(200);
         expect(res.body).toHaveProperty('username', 'updateduser');
-
-        // 업데이트된 사용자 정보로 user를 다시 설정합니다.
-        user = await userService.findUserByUsername('updateduser');
     });
 
     it('should delete a user', async () => {
         const userService = container.get<UsersService>(UsersService);
         const user = await userService.findUserByUsername('updateduser');
-        
-        if (!user) {
-            throw new Error('User not found');
-        }
-
         const res = await request(app)
-            .delete(`/users/${user.id}`)
+            .delete(`/users/${user!.id}`)
             .set('Authorization', `Bearer ${token}`);
 
         expect(res.statusCode).toEqual(204);

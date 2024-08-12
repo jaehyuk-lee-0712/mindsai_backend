@@ -1,22 +1,17 @@
-import { injectable } from 'inversify';
-import { sign } from 'jsonwebtoken';
-import { UsersService } from '../users/user.service';
-import * as dotenv from 'dotenv';
-
-dotenv.config();
+import { injectable, inject } from "inversify";
+import { UsersService } from "../users/user.service";
+import jwt from "jsonwebtoken";
 
 @injectable()
 export class AuthService {
-  constructor(private usersService: UsersService) {}
+  constructor(@inject(UsersService) private usersService: UsersService) {}
 
-  public async login(username: string, password: string): Promise<string | null> {
-    const user = await this.usersService.findUserByUsername(username);
-    if (user && user.password === password) {
-      const token = sign({ id: user.id, username: user.username }, process.env.JWT_SECRET!, {
-        expiresIn: '1h',
-      });
-      return token;
+  async login(username: string, password: string): Promise<string> {
+    const isPasswordValid = await this.usersService.validatePassword(username, password);
+    if (!isPasswordValid) {
+      throw new Error('올바르지 않은 비밀번호.');
     }
-    return null;
+    const token = jwt.sign({ username }, process.env.JWT_SECRET!, { expiresIn: '1h' });
+    return token;
   }
 }
