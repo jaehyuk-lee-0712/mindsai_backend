@@ -2,11 +2,11 @@
 
 주어진 과제의 내용에 맞추어 TypeScript를 기반으로 REST API를 개발하였습니다.
 
-
 ## 목차
 
 - [설치](#설치)
 - [애플리케이션 실행](#애플리케이션-실행)
+- [Docker 사용](#docker-사용)
 - [프로젝트 구조](#프로젝트-구조)
 - [API 엔드포인트](#api-엔드포인트)
 - [테스트 실행](#테스트-실행)
@@ -20,7 +20,7 @@
    ```bash
    git clone https://github.com/your-repository.git
    ```
-   
+
 2. 프로젝트 디렉토리로 이동합니다:
    ```bash
    cd mindsai-backend
@@ -39,6 +39,11 @@
 
 ```env
 JWT_SECRET=your_secret_key
+DB_HOST=db
+DB_PORT=3306
+DB_USER=root
+DB_PASS=rootpassword
+DB_NAME=mydatabase
 ```
 
 ### 2. 프로젝트 빌드
@@ -62,6 +67,57 @@ npm run start:dev
 ```bash
 npm start
 ```
+
+서버는 기본적으로 `http://localhost:3000`에서 실행됩니다.
+
+## Docker 사용
+
+Docker를 사용하여 애플리케이션을 실행할 수 있습니다. Docker를 사용하면 애플리케이션과 데이터베이스를 컨테이너화하여 손쉽게 실행할 수 있습니다.
+
+### 1. Docker Compose 설정
+
+`docker-compose.yml` 파일이 프로젝트에 포함되어 있으며, 애플리케이션과 MySQL 데이터베이스를 설정합니다.
+
+```yaml
+version: '3.7'
+
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydatabase
+    ports:
+      - "3306:3306"
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: rootpassword
+      DB_NAME: mydatabase
+      JWT_SECRET: your_secret_key
+    depends_on:
+      - db
+```
+
+### 2. Docker 이미지 빌드 및 컨테이너 실행
+
+아래 명령어를 사용하여 Docker 이미지를 빌드하고, 컨테이너를 실행할 수 있습니다.
+
+```bash
+docker-compose up --build
+```
+
+이 명령어는 애플리케이션과 MySQL 데이터베이스를 포함한 모든 서비스를 시작합니다.
+
+### 3. 데이터베이스 및 테이블 자동 생성
+
+Docker 컨테이너가 시작되면 `mydatabase` 데이터베이스와 `User` 테이블이 자동으로 생성됩니다. 이는 `synchronize: true` 설정에 의해 이루어집니다.
 
 서버는 기본적으로 `http://localhost:3000`에서 실행됩니다.
 
